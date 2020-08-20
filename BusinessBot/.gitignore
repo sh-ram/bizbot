@@ -1,0 +1,5 @@
+/.DS_Store
+/Deprecated
+/__pycache__
+/currency.db
+/geckodriver.log
