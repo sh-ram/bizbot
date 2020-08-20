@@ -2,10 +2,12 @@ version: "3"
 
 services: 
     bizbot:
+        container_name: bizbot
         build: BusinessBot/
         ports:
             - 4444
     selenium-standalone:
+        container_name: selenium
         image: selenium/standalone-chrome
         ports:
             - 4444:4444
