@@ -8,7 +8,7 @@
 Clone from github:
 
 ```sh
-git clone https://github.com/sh-ram/bizbot && cd bizbot
+git clone https://github.com/sh-ram/bizbot.git && cd bizbot
 ```
 
 ## Build
