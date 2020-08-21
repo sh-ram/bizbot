@@ -14,9 +14,11 @@ git clone https://github.com/sh-ram/bizbot && cd bizbot
 ## Build
 
 
-To build project, you need to install <b>docker</b> and <b>docker-compose</b> api, [here](https://docs.docker.com/engine/install/) official samples.
+To build project, you need to install 
+<b>[docker](https://docs.docker.com/engine/install/)</b> and 
+<b>[docker-compose](https://docs.docker.com/compose/install/)</b> api.
 
-If you already have use to build:
+If you already have, use to build:
 
 ```sh
 docker-compose up -d
