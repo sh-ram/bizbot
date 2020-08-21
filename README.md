@@ -31,7 +31,7 @@ To connect working docker container with <b>telegram bot</b> use:
 ```sh
 docker exec -it bizbot bash
 ```
-And to connect <b>selenium</b> docker container:
+And to <b>selenium</b> docker container:
 
 ```sh
 docker exec -it selenium bash
