@@ -1,9 +1,3 @@
-currency.db
 **/.DS_store
 **/__pycache__
 *.log
-*/Deprecated/*
-# */Dockerfile
-*/docker-compose.yaml
-env/
-
