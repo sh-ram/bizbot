@@ -242,9 +242,9 @@ def main():
         },
         fallbacks = [MessageHandler(ReFilter(Patterns.FALLBACK), cancel)]
     )
-    dp.add_handler(currency_conversation_handler)
     dp.add_handler(MessageHandler(ReFilter(Patterns.NOTIFY_FORCE), notify_force))
     dp.add_handler(MessageHandler(ReFilter(Patterns.NOTIFY_DISABLE), disable))
+    dp.add_handler(currency_conversation_handler)
     dp.add_handler(CommandHandler('notifications', notifications))
     dp.add_handler(CommandHandler('start', start))
     dp.add_handler(CommandHandler('help', start))
