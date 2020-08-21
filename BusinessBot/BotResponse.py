@@ -31,7 +31,7 @@ conv_time_invalid = 'Время некорректно.\n'  \
                     f'{time_format}\n\n'    \
                     f'{cancel}'
 
-conv_cancel = 'Отмена оповещения успешна.\n\n'\
+conv_cancel = 'Отмена успешна.\n\n'\
               f'{help}'
 
 request_accept = 'Принято.\n'\

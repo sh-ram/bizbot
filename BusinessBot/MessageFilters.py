@@ -1,7 +1,11 @@
+'''Describe state filters patterns.'''
+
+
 import re
 from typing import Dict
 
 from telegram.ext import Filters
+
 
 class Patterns:
     NOTIFY_FORCE = 'notify_force'
@@ -12,6 +16,7 @@ class Patterns:
     CURRENCY_SHOW_MORE = 'currency_show_more'
     TIME_CONV = 'time_conversation'
     FALLBACK = 'fallback'
+    COMMAND = 'command'
 
 patterns = {
     'notify_force': r''' ^/notify
@@ -39,9 +44,15 @@ patterns = {
     (?# seconds)            ((?<=:)\d{1,2})? ''',
 
     'fallback': r'(?<=^/)?(?:отмена|cancel)',
+    'command': r'^/[^0-9\s]+'
 }
 
 class ReFilter(Filters.regex):
+    '''Inherited from Filters.regex class.
+    Overwrite __init__ and filter methods.
+    
+    Pre-define any pattern with IGNORECASE and VERBOSE flags.'''
+
 
     def __init__(self, pattern):
         if isinstance(pattern, str):
@@ -52,6 +63,11 @@ class ReFilter(Filters.regex):
         return super().filter(message)
 
 class Regex():
+    '''Support for regular match() expressions.
+    
+    Perform re.findall() method through match()
+    with IGNORECASE and VERBOSE flags.'''
+
 
     def match(self, pattern: str, text: str) -> str:
         if isinstance(pattern, str):

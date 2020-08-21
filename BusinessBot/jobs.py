@@ -1,3 +1,10 @@
+'''Class describes work with database (insert, update queries) through using "db" file.
+
+Allow initializing db saved jobs, also adding, disable, jobs.
+
+Module contains methods that return job name, currency index from job_name and job queue from db.'''
+
+
 import datetime
 import logging
 from typing import Dict, List, NamedTuple
@@ -57,7 +64,6 @@ def add_job(job: Job) -> None:
         'execute_time': job.time,
         'days': job.days
     }
-    print(dict_values)
     constraint = 'currency_index_id chat_id'.split()
     db.insert('job', dict_values, constraint)
 

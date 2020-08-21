@@ -37,10 +37,12 @@ def start(update, context):
                               disable_notification=True)
 
 def notify_force(update, context):
-    ''' 
-        Add job if message contain 'command', 'currency' and 'time'.
-        E.g.: "/notifyeur15:10:01","/notify eur 15:10", etc.
-    '''
+    '''Add job if message contain 'command', 'currency' and 'time'.
+    
+    Invoke examples:
+        /notifyeur15:10:01
+        /notify eur 15:10'''
+
     regex = Regex()
     currency = regex.match(Patterns.CURRENCY, update.message.text)
     time = regex.match(Patterns.TIME_CONV, update.message.text)
@@ -78,7 +80,7 @@ def notifications(update, context):
 
 @run_async
 def disable(update, context):
-    '''Remove job or all jobs from job_queue and set 'disable' to db job status.'''
+    '''Remove job or all jobs from job_queue and set 'disable' to db jobs status.'''
     currency_index = context.match[0]
     chat_id = update.message.chat_id
     text = BotResponse.jobs_disabled if not currency_index else \
@@ -93,35 +95,36 @@ def disable(update, context):
 @run_async
 def conv_currency(update, context):
     '''Show keyboard with currency name values with mark roll.'''
-    chat_data = context.chat_data
     user_data = context.user_data
     currencies = Currencies().get_currencies_names()
     if not 'mark' in user_data.keys(): user_data['mark'] = 0
+
     reply_keyboard = BotModel.get_keyboard(currencies, user_data['mark'])
     user_data['mark'] = reply_keyboard.mark
     reply_keyboard.rows.append('Отмена Еще'.split())
     text = BotResponse.conv_currency
-    markup = ReplyKeyboardMarkup(reply_keyboard.rows, resize_keyboard=True, one_time_keyboard=True)
+    markup = ReplyKeyboardMarkup(reply_keyboard.rows, resize_keyboard=True)
     update.message.reply_text(text=text, 
                               parse_mode=ParseMode.HTML,
                               reply_markup=markup)
+    #Define current conversation
     CONV = None
     message = update.message.text
-    is_more = Regex().is_match(Patterns.CURRENCY_SHOW_MORE, message)
-    if 'conv' in chat_data.keys(): 
-        CONV = chat_data['conv']
-    elif not is_more: 
-        CONV = CONVERSATION[message]
-    print(f'{CONV=}')
+    command = Regex().match(Patterns.COMMAND, message)
+    if 'conv' in user_data.keys(): 
+        CONV = user_data['conv']
+    elif command:
+        CONV = CONVERSATION[command]
     return CONV
 
 @run_async
 def notify(update, context):
-    '''
-        Function is invoked after call "/notify" command when user already typed "currency" value,
-        Parse any value e.g. [currency index] or [currency name].
-        Shortcut: "/notifyUSD", "/notify Euro", etc.
-    '''
+    '''Function is invoked after calling "/notify" command when user already typed "currency" value,
+    Parse any value e.g.: [currency index] or [currency name].
+    
+    Invoke examples:
+        /notifyUSD 
+        /notify Euro'''
     user_currency = Regex().match(Patterns.CURRENCY, update.message.text)
     currency_index = Currencies().get_index(user_currency)
     if currency_index:
@@ -133,15 +136,14 @@ def notify(update, context):
         return TIME
     text = BotResponse.conv_currency_invalid(update.message.text)
     update.message.reply_text(text, parse_mode=ParseMode.HTML)
-    context.chat_data['conv'] = NOTIFY
+    context.user_data['conv'] = NOTIFY
     return NOTIFY
 
 @run_async
 def time(update, context):
-    ''' 
-        Parse input user time. 
-        Decline input if time is invalid then request user time again.
-        Set job by UserJob tuple of data.
+    ''' Parse input user time. 
+    Decline input if time is invalid then request user time again.
+    Set job by Job namedtuple.
     '''
     queue = context.job_queue
     chat_id = update.message.chat_id
@@ -174,17 +176,23 @@ def time(update, context):
 def callback_rate(context):
     '''Function is called by job. User get actual rate of currecy.'''
     chat_id = context.job.context
-    currency_index = jobs.get_currency_index(context.job.name)
     currencies = Currencies()
+    
+    currency_index = jobs.get_currency_index(context.job.name)
     currency_name = currencies.get_name(currency_index)
     webset = currencies.get_webset(currency_index)
     currency_rate = BotWebModel().get_element_text(webset.url, webset.selector)
+    
     text = BotResponse.rate( list([currency_index, currency_name, webset.unit, currency_rate]) )
     context.bot.send_message(chat_id, text, parse_mode=ParseMode.HTML)
 
 @run_async
 def rate(update, context):
-    '''User get actual rate of request currecy.'''
+    '''Return actual rate by request currecy.
+    
+    Invoke examples:
+        /rateCAD
+        /rate sdr'''
     user_currency = Regex().match(Patterns.CURRENCY, update.message.text)
     currencies = Currencies()
     currency_index = currencies.get_index(user_currency)
@@ -207,7 +215,7 @@ def rate(update, context):
 
 @run_async
 def cancel(update, context):
-    '''End any conversation is use.'''
+    '''End conversation is use.'''
     text = BotResponse.conv_cancel
     update.message.reply_text(text, reply_markup=ReplyKeyboardRemove())
     context.user_data.clear()
@@ -219,10 +227,6 @@ def main():
     updater = Updater(token, use_context=True)
     dp = updater.dispatcher
     jobs.init(dp.job_queue, callback_rate)
-    
-    dp.add_handler(CommandHandler('notifications', notifications))
-    dp.add_handler(MessageHandler(ReFilter(Patterns.NOTIFY_FORCE), notify_force))
-    dp.add_handler(MessageHandler(ReFilter(Patterns.NOTIFY_DISABLE), disable))
 
     currency_conversation_handler = ConversationHandler(
         entry_points= [ MessageHandler(ReFilter(Patterns.RATE_MASK), rate),
@@ -234,12 +238,14 @@ def main():
                     MessageHandler(~ReFilter(Patterns.FALLBACK), rate) ],
             NOTIFY: [ MessageHandler(ReFilter(Patterns.CURRENCY_SHOW_MORE), conv_currency),
                         MessageHandler(~ReFilter(Patterns.FALLBACK), notify) ],
-            TIME: [ MessageHandler(ReFilter(Patterns.TIME_CONV), time) ],
+            TIME: [ MessageHandler(~ReFilter(Patterns.FALLBACK), time) ],
         },
         fallbacks = [MessageHandler(ReFilter(Patterns.FALLBACK), cancel)]
     )
-    
     dp.add_handler(currency_conversation_handler)
+    dp.add_handler(MessageHandler(ReFilter(Patterns.NOTIFY_FORCE), notify_force))
+    dp.add_handler(MessageHandler(ReFilter(Patterns.NOTIFY_DISABLE), disable))
+    dp.add_handler(CommandHandler('notifications', notifications))
     dp.add_handler(CommandHandler('start', start))
     dp.add_handler(CommandHandler('help', start))
     dp.add_handler(MessageHandler(Filters.all, start))

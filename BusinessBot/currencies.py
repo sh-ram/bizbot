@@ -68,11 +68,12 @@ class Currencies():
         return self._currencies_names
 
     def get_index(self, currency: str) -> str:
-        currencies = self._currencies_names
-        for index in currencies:
-            if currency.lower() in currencies[index] \
-            or currency.upper() == index:
-                return index
+        if currency:
+            currencies = self._currencies_names
+            for index in currencies:
+                if currency.lower() in currencies[index] \
+                or currency.upper() == index:
+                    return index
 
     def get_webset(self, currency: str) -> WebSet:
         index = self.get_index(currency)
