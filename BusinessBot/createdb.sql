@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS job(
         DEFAULT 'active',
     execute_time time NOT NULL,
     days char(7) NOT NULL DEFAULT '0123456',
-    last_change_datetime datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_change_datetime datetime NOT NULL DEFAULT CURRENT_TIMESTAMP, -- docker db get UTC timestamp
 
     FOREIGN KEY (currency_index_id) REFERENCES currency_index(id_currency_index)
         ON UPDATE CASCADE
