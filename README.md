@@ -26,7 +26,7 @@ docker-compose up -d
 
 ### Using docker containers
 
-To connect working docker container with <b>telegram bot</b> use:
+To connect into working docker container with <b>telegram bot</b> use:
 
 ```sh
 docker exec -it bizbot bash
