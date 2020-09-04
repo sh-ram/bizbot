@@ -8,7 +8,7 @@ def get_msk(time: tuple) -> datetime:
     hours, minutes, seconds = range(3)
     if isinstance(time, str):
         time = tuple( time.split(':') )
-    hours = int(time[hours])
+    hours = int(time[hours]) if time[hours] else 0
     minutes = int(time[minutes]) if time[minutes] else 0
     seconds = int(time[seconds]) if time[seconds] else 0
     try:
