@@ -150,11 +150,11 @@ def time(update, context):
     chat_id = update.message.chat_id
     user_id = update.effective_user.id
     time = Regex().match(Patterns.TIME_CONV, update.message.text)
+    time = time_.get_msk(tuple(time))
     if not time: 
         text = BotResponse.conv_time_invalid
         update.message.reply_text(text, parse_mode=ParseMode.HTML)
         return TIME
-    time = time_.get_msk(tuple(time))
     currency_index = context.user_data['currency_index']
     jobs.disable_job(queue, chat_id, currency_index)
     queue.run_daily(callback=callback_rate,
