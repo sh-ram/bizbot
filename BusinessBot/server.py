@@ -57,6 +57,7 @@ def notify_force(update, context):
         queue = context.job_queue
         chat_id = update.message.chat_id
         user_id = update.message.from_user.id
+        jobs.disable_job(queue, chat_id, currency_index)
         queue.run_daily(callback=callback_rate,
                         time=time, 
                         days=Days.EVERY_DAY, 
@@ -66,7 +67,6 @@ def notify_force(update, context):
         days = ''.join( [str(x) for x in tuple(Days.EVERY_DAY)] ) 
         
         job = Job( currency_index, time, days=days, id=Id(chat_id, user_id) )  
-        jobs.disable_job(queue, chat_id, currency_index)
         jobs.add_job(job)
         text = BotResponse.job_stated(currency_index, time)
     update.message.reply_text(text, parse_mode=ParseMode.HTML)
