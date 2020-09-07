@@ -150,11 +150,7 @@ def time(update, context):
     chat_id = update.message.chat_id
     user_id = update.effective_user.id
     time = Regex().match(Patterns.TIME_CONV, update.message.text)
-<<<<<<< HEAD
-    time = time_.get_msk(time)
-=======
     time = time_.get_msk(tuple(time))
->>>>>>> 177394b2e66c0122bfbe0a1682ad1674bb539d97
     if not time: 
         text = BotResponse.conv_time_invalid
         update.message.reply_text(text, parse_mode=ParseMode.HTML)
