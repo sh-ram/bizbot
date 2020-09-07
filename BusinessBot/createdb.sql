@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS job(
         DEFAULT 'active',
     execute_time time NOT NULL,
     days char(7) NOT NULL DEFAULT '0123456',
-    last_change_datetime datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_change_datetime datetime NOT NULL DEFAULT CURRENT_TIMESTAMP, -- docker db get UTC timestamp
 
     FOREIGN KEY (currency_index_id) REFERENCES currency_index(id_currency_index)
         ON UPDATE CASCADE
@@ -82,7 +82,7 @@ CREATE TRIGGER insert_index_selector AFTER INSERT ON `burse`
             (id_index_selector, currency_index_id, url) 
         SELECT 
             CASE WHEN INSTR(template, '{currency}') > 0 THEN
-            REPLACE(template, '{currency}', LOWER(id_currency_index)) END selector,   
+                REPLACE(template, '{currency}', LOWER(id_currency_index)) END selector,   
             id_currency_index currency, url
         FROM currency_index, (SELECT NEW.template template, NEW.url url);
     END
@@ -92,7 +92,7 @@ CREATE TRIGGER update_job_status
     BEFORE UPDATE OF `execute_time`, `user_id`, `status`,
                      `days`
     ON `job`
-        -- Change status to 'active' with minor upset row only.
+    -- Change status to 'active' with minor upset row only.
     FOR EACH ROW
         BEGIN
             UPDATE job SET status = 'active', last_change_datetime = CURRENT_TIMESTAMP
@@ -101,7 +101,7 @@ CREATE TRIGGER update_job_status
             
             INSERT INTO `job_log` 
                     (currency_index_id, user_id_, chat_id_, status_,
-                    execute_time_, days_, last_change_datetime_) 
+                     execute_time_, days_, last_change_datetime_) 
             VALUES (NEW.currency_index_id, NEW.user_id, 
                     NEW.chat_id, NEW.status, 
                     NEW.execute_time, NEW.days,
@@ -204,8 +204,3 @@ INSERT INTO index_link (id_index_link, currency_index_id, language) VALUES
     ('special drawing right',       'XDR', 'en'),
     ('Moldovan LEU',        'MDL', 'en')
 ;
---     ('RON', '#cdrf_today_ron', 'Mainfin'),
---     ('TJS', '#cdrf_today_tjs', 'Mainfin'),
---     ('XDR', '#cdrf_today_xdr', 'Mainfin'),
---     ('MDL', '#cdrf_today_mdl', 'Mainfin');
-

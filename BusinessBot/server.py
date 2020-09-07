@@ -47,7 +47,7 @@ def notify_force(update, context):
     currency = regex.match(Patterns.CURRENCY, update.message.text)
     time = regex.match(Patterns.TIME_CONV, update.message.text)
     currency_index = Currencies().get_index(currency)
-    time = time_.get_msk(time)
+    time = time_.get_msk(tuple(time))
     text = ''
     if not currency_index:
         text = BotResponse.currency_invalid(update.message.text)
@@ -125,6 +125,7 @@ def notify(update, context):
     Invoke examples:
         /notifyUSD 
         /notify Euro'''
+    
     user_currency = Regex().match(Patterns.CURRENCY, update.message.text)
     currency_index = Currencies().get_index(user_currency)
     if currency_index:
@@ -143,13 +144,17 @@ def notify(update, context):
 def time(update, context):
     ''' Parse input user time. 
     Decline input if time is invalid then request user time again.
-    Set job by Job namedtuple.
-    '''
+    Set job by Job namedtuple.'''
+    
     queue = context.job_queue
     chat_id = update.message.chat_id
     user_id = update.effective_user.id
     time = Regex().match(Patterns.TIME_CONV, update.message.text)
+<<<<<<< HEAD
     time = time_.get_msk(time)
+=======
+    time = time_.get_msk(tuple(time))
+>>>>>>> 177394b2e66c0122bfbe0a1682ad1674bb539d97
     if not time: 
         text = BotResponse.conv_time_invalid
         update.message.reply_text(text, parse_mode=ParseMode.HTML)
@@ -175,7 +180,7 @@ def time(update, context):
 
 def callback_rate(context):
     '''Function is called by job. User get actual rate of currecy.'''
-    chat_id = context.job.context
+    chat_id = int(context.job.context)
     currencies = Currencies()
     
     currency_index = jobs.get_currency_index(context.job.name)
@@ -193,6 +198,7 @@ def rate(update, context):
     Invoke examples:
         /rateCAD
         /rate sdr'''
+    
     user_currency = Regex().match(Patterns.CURRENCY, update.message.text)
     currencies = Currencies()
     currency_index = currencies.get_index(user_currency)
@@ -200,7 +206,7 @@ def rate(update, context):
         text = BotResponse.conv_currency_invalid(user_currency)
         update.message.reply_text(text,
                                   parse_mode=ParseMode.HTML)
-        context.chat_data['conv'] = RATE
+        context.user_data['conv'] = RATE
         return RATE
     update.message.reply_text(text=BotResponse.request_accept, 
                               reply_markup=ReplyKeyboardRemove())
